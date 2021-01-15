@@ -1,0 +1,65 @@
+package mainpackage.servletpackage;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import mainpackage.DatabaseProcedures;
+import mainpackage.telecompackage.Program;
+
+/**
+ * Servlet implementation class ChangeProgramDetailsServlet
+ */
+@WebServlet("/ChangeProgramDetailsServlet")
+public class ChangeProgramDetailsServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public ChangeProgramDetailsServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String program_name = request.getParameter("SelectedProgram_name");
+		DatabaseProcedures dP = new DatabaseProcedures();
+
+		HttpSession session = request.getSession();
+		session.setAttribute("selectedProgram", "TRUE");
+		
+		Program program = dP.getProgram(program_name);
+		
+		request.setAttribute("program", program);
+		request.getRequestDispatcher("changeProgramDetails.jsp").forward(request, response);
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String program_name = request.getParameter("Program_name");
+		String internet = request.getParameter("Internet");
+		String minutes = request.getParameter("Minutes");
+		String sms = request.getParameter("Sms");
+		int cost = Integer.parseInt(request.getParameter("Cost"));
+		
+		DatabaseProcedures dP = new DatabaseProcedures();
+		
+		Program program = new Program(program_name, internet, minutes, sms, cost);
+		String result = dP.updateProgram(program);
+		
+		response.getWriter().print(result);
+		response.setHeader("Refresh", "3;url=adminsIndex.jsp");
+	}
+
+}
